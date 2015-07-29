@@ -2,7 +2,7 @@
   "name": "autocomplete-html-entities",
   "author": "Lee Dohm <lee@lee-dohm.com>",
   "main": "./lib/main",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "An autocomplete-plus 2.0 provider for HTML entities.",
   "keywords": [
     "autocomplete",

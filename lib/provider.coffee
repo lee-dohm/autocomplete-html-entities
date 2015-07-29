@@ -1,4 +1,5 @@
 CSON = require 'season'
+{filter} = require 'fuzzaldrin'
 
 module.exports =
   selector: '.text.html.basic, .source.gfm'
@@ -39,6 +40,8 @@ module.exports =
 
   # Private: Builds the list of suggestions from the current set of completions and the `prefix`.
   #
+  # Once the list of suggestions is built, it is ranked and filtered using the fuzzaldrin library.
+  #
   # * `prefix` {String} containing the text to match and replace.
   #
   # Returns a list of applicable suggestions.
@@ -48,7 +51,7 @@ module.exports =
       completion.replacementPrefix = prefix
       suggestions.push(completion)
 
-    suggestions
+    filter(suggestions, prefix, key: 'text')
 
   # Private: Gets the appropriate prefix text to search for.
   #

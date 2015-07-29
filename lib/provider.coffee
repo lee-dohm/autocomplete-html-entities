@@ -1,3 +1,5 @@
+CSON = require 'season'
+
 module.exports =
   selector: '.text.html.basic, .source.gfm'
 
@@ -5,19 +7,41 @@ module.exports =
   #
   # * `request` Relevant editor state to inform the list of suggestions returned. It consists of:
   #   * `editor` {TextEditor} the suggestions are being requested for.
-  #   * `bufferPosition` Position of the cursor in the file.
+  #   * `bufferPosition` Position {Point} of the cursor in the file.
   #   * `scopeDescriptor` The [scope descriptor](https://atom.io/docs/latest/behind-atom-scoped-settings-scopes-and-scope-descriptors#scope-descriptors)
   #     for the current cursor position.
   #   * `prefix` Prefix that triggered the request for suggestions.
+  #
+  # Returns a {Promise} that resolves to the list of suggestions or returns an empty list
+  # immediately.
   getSuggestions: ({editor, bufferPosition}) ->
     prefix = @getPrefix(editor, bufferPosition)
+    return [] unless prefix.length > 0
 
-    if prefix.length > 0
-      new Promise (resolve) =>
-        resolve(@buildSuggestions(prefix))
-    else
-      []
+    new Promise (resolve) =>
+      resolve(@buildSuggestions(prefix))
 
+  # Public: Loads the full set of completions.
+  loadCompletions: ->
+    @completions = []
+    path = CSON.resolve("#{__dirname}/../data/completions")
+    CSON.readFile path, (error, object) =>
+      return if error?
+
+      {completions} = object
+      @completions = for description, entity of completions
+        {
+          text: entity
+          rightLabelHTML: entity
+          description: description
+          type: 'constant'
+        }
+
+  # Private: Builds the list of suggestions from the current set of completions and the `prefix`.
+  #
+  # * `prefix` {String} containing the text to match and replace.
+  #
+  # Returns a list of applicable suggestions.
   buildSuggestions: (prefix) ->
     suggestions = []
     for completion in @completions
@@ -26,21 +50,13 @@ module.exports =
 
     suggestions
 
-  loadCompletions: ->
-    @completions = [
-      {
-        text: '&copy;'
-        rightLabelHTML: '&copy;'
-        description: 'copyright symbol'
-      }
-    ]
-
+  # Private: Gets the appropriate prefix text to search for.
+  #
+  # * `editor` {TextEditor} where the autocompletion was requested.
+  # * `bufferPosition` A {Point} or point-compatible {Array} indicating where the cursor is located.
+  #
+  # Returns a {String} containing the prefix text.
   getPrefix: (editor, bufferPosition) ->
-    # Whatever your prefix regex might be
-    regex = /&[A-Za-z0-9]+$/
-
-    # Get the text for the line up to the triggered buffer position
     line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
 
-    # Match the regex to the line, and return the first capture
-    line.match(regex)?[0] or ''
+    line.match(/&[A-Za-z0-9]+$/)?[0] or ''

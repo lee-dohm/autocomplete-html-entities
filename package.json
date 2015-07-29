@@ -1,0 +1,25 @@
+{
+  "name": "autocomplete-html-entities",
+  "author": "Lee Dohm <lee@lee-dohm.com>",
+  "main": "./lib/main",
+  "version": "0.0.0",
+  "description": "An autocomplete-plus 2.0 provider for HTML entities.",
+  "keywords": [
+    "autocomplete",
+    "provider",
+    "HTML",
+    "entities"
+  ],
+  "repository": "https://github.com/lee-dohm/autocomplete-html-entities",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "getProvider"
+      }
+    }
+  }
+}
